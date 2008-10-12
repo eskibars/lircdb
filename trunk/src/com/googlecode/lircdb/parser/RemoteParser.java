@@ -6,10 +6,12 @@ import java.io.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class RemoteParser {
 	// TODO: support keeping comments from a line
 	// TODO: use of replaceAll() can probably be removed as it's done by getLine now
+	private Logger log = Logger.getLogger(RemoteParser.class.getName());
 	private BufferedReader br;
 	private File file;
 	private String pushBack;
@@ -75,7 +77,38 @@ public class RemoteParser {
 
 		while ((line = getRawLine()) != null) {
 			if (!line.startsWith("#")) {
-				pushBack(line);
+				//pushBack(line);
+				// it's possible that some header lines do not have # in front of them
+				// check if the next line is a comment first
+
+				if (line.equals("begin remote")) {
+					pushBack(line);
+					break;
+				}
+
+				// line isn't begin remote like we expected.. lets see if next line is a comment
+				String nextLine = getRawLine();
+
+				if (nextLine.startsWith("#")) {
+					// looks like we're still in the header, lets add our new lines to the buffer
+					sb.append(line);
+					sb.append("\n");
+					sb.append(nextLine);
+					sb.append("\n");
+
+					continue;
+				} else if (nextLine.equals("begin remote")) {
+					// ok, looks like the previous line was most likely a header line
+					sb.append(line);
+					sb.append("\n");
+
+					pushBack(nextLine);
+					break;
+				}
+
+				// this could be if there's multiple lines without # in the header 
+				log.severe("Uknown error when parsing remote header");
+
 				break;
 			}
 
