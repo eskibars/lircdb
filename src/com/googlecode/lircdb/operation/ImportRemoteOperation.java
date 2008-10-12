@@ -29,8 +29,8 @@ public class ImportRemoteOperation extends Operation {
 
 		// some prep statements
 		PreparedStatement companyExistsPs = con.prepareStatement("SELECT company_id FROM company WHERE name = ?");
+		PreparedStatement remoteNameExistsCountPs = con.prepareStatement("SELECT COUNT(*) FROM remote WHERE name = ? OR name LIKE ?");
 		PreparedStatement buttonAliasExistsPs = con.prepareStatement("SELECT button_id FROM button_map WHERE alias = ?");
-
 		PreparedStatement remoteButtonExistsPs = con.prepareStatement("SELECT remote_id, button_id FROM remote_code WHERE remote_id = (SELECT remote_id FROM remote WHERE name = ?) AND button_id = (SELECT button_id FROM button_map WHERE alias = ?)");
 
 		PreparedStatement companyPs = con.prepareStatement("INSERT INTO company (name) VALUES(?)");
@@ -53,17 +53,26 @@ public class ImportRemoteOperation extends Operation {
 
 		// import each remote from file into db
 		for (Remote remote : remotes) {
-			// TODO: validate remote (cannot have the same code multiple times).
+			// check if the remote name has already been used
+			// if it has, append _NUM onto end
+			String remoteName = remote.getOption(Option.NAME);
 
-			String remoteName = remoteFile.getName() + "-" + remote.getOption(Option.NAME);
+			remoteNameExistsCountPs.setString(1, remoteName);
+			remoteNameExistsCountPs.setString(2, remoteName + "_%");
 
-			// TODO: find a good way to make remote name unique
-			if (remoteName.length() > 29) {
-				remoteName = remoteName.substring(0, 29);
+			ResultSet remoteNameExistsCountRs = remoteNameExistsCountPs.executeQuery();
+
+			remoteNameExistsCountRs.next();
+
+			int sameNameCount = remoteNameExistsCountRs.getInt(1);
+
+			if (sameNameCount > 0) {
+				remoteName += "_" + (sameNameCount + 1);
+
+				log.info("remote name is already taken, using: " + remoteName);
 			}
 
-			remoteName += (int)(Math.random() * 1000);
-
+			// insert remote into the database
 			remotePs.setString(1, companyName);
 			remotePs.setString(2, remoteName);
 			remotePs.setBoolean(3, remote.usesRawCodes());
@@ -72,6 +81,7 @@ public class ImportRemoteOperation extends Operation {
 
 			remotePs.executeUpdate();
 
+			// insert the remote codes into the database
 			for (Code code : remote.getCodes()) {
 				// check if remote_id / button_id already
 				remoteButtonExistsPs.setString(1, remoteName);
@@ -103,6 +113,7 @@ public class ImportRemoteOperation extends Operation {
 				}
 			}
 
+			// insert the remote flags into the database
 			for (Flag flag : remote.getFlags()) {
 				remoteFlagPs.setString(1, remoteName);
 				remoteFlagPs.setString(2, flag.toString());
@@ -112,6 +123,7 @@ public class ImportRemoteOperation extends Operation {
 
 			String optionValue;
 
+			// insert the remote options into th edatabase
 			for (Option option : Option.values()) {
 				optionValue = remote.getOption(option);
 
@@ -129,6 +141,7 @@ public class ImportRemoteOperation extends Operation {
 
 		// close prepared statements
 		companyExistsPs.close();
+		remoteNameExistsCountPs.close();
 		buttonAliasExistsPs.close();
 		remoteButtonExistsPs.close();
 

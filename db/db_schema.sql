@@ -8,7 +8,7 @@ CREATE TABLE company (
 CREATE TABLE remote (
 	remote_id	integer IDENTITY,
 	company_id	integer NOT NULL REFERENCES company (company_id),
-	name		varchar(32) NOT NULL,
+	name		varchar(42) NOT NULL,
 	uses_raw_codes	boolean NOT NULL,
 	UNIQUE		(company_id, name)
 );

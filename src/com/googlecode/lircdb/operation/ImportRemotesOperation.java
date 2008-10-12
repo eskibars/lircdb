@@ -21,6 +21,7 @@ public class ImportRemotesOperation extends Operation {
 					remoteFile.getName().endsWith(".png") ||
 					remoteFile.getName().endsWith(".gif") ||
 					remoteFile.getName().endsWith(".html") ||
+					remoteFile.getName().endsWith(".lircrc") ||
 					remoteFile.getName().startsWith("lircmd.") ||
 					remoteFile.getName().startsWith(".")
 				) {
@@ -33,8 +34,15 @@ public class ImportRemotesOperation extends Operation {
 					log.info("Remote Number: " + i);
 				}
 
-				Operation op = new ImportRemoteOperation(company.getName(), remoteFile);
-				op.run(con);
+				if (remoteFile.isDirectory()) {
+					for (File actualRemoteFile : remoteFile.listFiles()) {
+						Operation op = new ImportRemoteOperation(company.getName(), actualRemoteFile);
+						op.run(con);
+					}
+				} else {
+					Operation op = new ImportRemoteOperation(company.getName(), remoteFile);
+					op.run(con);
+				}
 			}
 		}
 	}
