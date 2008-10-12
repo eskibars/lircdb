@@ -1,5 +1,3 @@
-
-
 INSERT INTO flag (name) VALUES('CONST_LENGTH');
 INSERT INTO flag (name) VALUES('GOLDSTAR');
 INSERT INTO flag (name) VALUES('GRUNDIG');
@@ -351,6 +349,7 @@ INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button 
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'VolDown'), 'volume''\/''');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'VolDown'), 'vol_-');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'VolDown'), 'vol_dn');
+INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'VolDown'), 'vol_down');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'VolDown'), 'volume_minus');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'VolDown'), 'tvvol-');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'VolDown'), 'vol_minus');
@@ -417,7 +416,6 @@ INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button 
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'ChanDown'), 'chan_plus');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'ChanDown'), 'tv_plus');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'ChanDown'), 'tv_prog_plus');
-INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'ChanDown'), 'vol_down');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'ChanDown'), 'ch_down');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'ChanDown'), 'p-');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'ChanDown'), 'prog-');
@@ -583,7 +581,7 @@ INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button 
 
 /* ok */
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'Ok'), 'ok');
-INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'Ok'), '(SELEct');
+/*INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'Ok'), '(SELEct');*/
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'Ok'), 'enter');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'Ok'), 'return');
 INSERT INTO button_map (button_id, alias) VALUES ((SELECT button_id FROM button WHERE name = 'Ok'), 'yes');

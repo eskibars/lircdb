@@ -30,7 +30,7 @@ public class ImportRemotesOperation extends Operation {
 				++i;
 
 				if (i % 100 == 0) {
-					System.out.println("Remote Number: " + i);
+					log.info("Remote Number: " + i);
 				}
 
 				Operation op = new ImportRemoteOperation(company.getName(), remoteFile);

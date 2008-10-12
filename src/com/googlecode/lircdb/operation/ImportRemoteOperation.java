@@ -18,7 +18,7 @@ public class ImportRemoteOperation extends Operation {
 	private File remoteFile;
 
 	public ImportRemoteOperation(String companyName, File remoteFile) {
-		log.fine("remote file: " + remoteFile.getAbsolutePath());
+		log.fine("Importing remote file: " + remoteFile);
 
 		this.companyName = companyName;
 		this.remoteFile = remoteFile;
@@ -30,6 +30,8 @@ public class ImportRemoteOperation extends Operation {
 		// some prep statements
 		PreparedStatement companyExistsPs = con.prepareStatement("SELECT company_id FROM company WHERE name = ?");
 		PreparedStatement buttonAliasExistsPs = con.prepareStatement("SELECT button_id FROM button_map WHERE alias = ?");
+
+		PreparedStatement remoteButtonExistsPs = con.prepareStatement("SELECT remote_id, button_id FROM remote_code WHERE remote_id = (SELECT remote_id FROM remote WHERE name = ?) AND button_id = (SELECT button_id FROM button_map WHERE alias = ?)");
 
 		PreparedStatement companyPs = con.prepareStatement("INSERT INTO company (name) VALUES(?)");
 		PreparedStatement remotePs = con.prepareStatement("INSERT INTO remote (company_id, name, uses_raw_codes) VALUES((SELECT company_id FROM company WHERE name = ?), ?, ?)");
@@ -71,6 +73,17 @@ public class ImportRemoteOperation extends Operation {
 			remotePs.executeUpdate();
 
 			for (Code code : remote.getCodes()) {
+				// check if remote_id / button_id already
+				remoteButtonExistsPs.setString(1, remoteName);
+				remoteButtonExistsPs.setString(2, code.getName().toLowerCase());
+
+				ResultSet remoteButtonExistsRs = remoteButtonExistsPs.executeQuery();
+
+				if (remoteButtonExistsRs.next()) {
+					log.severe("Remote button already exists: " + remoteFile + " " + remoteName + " " + code.getName() + " " + remoteButtonExistsRs.getInt("remote_id") + " " + remoteButtonExistsRs.getInt("button_id"));
+					continue;
+				}
+
 				buttonAliasExistsPs.setString(1, code.getName().toLowerCase());
 
 				ResultSet buttonAliasExistsRs = buttonAliasExistsPs.executeQuery();
@@ -117,6 +130,7 @@ public class ImportRemoteOperation extends Operation {
 		// close prepared statements
 		companyExistsPs.close();
 		buttonAliasExistsPs.close();
+		remoteButtonExistsPs.close();
 
 		companyPs.close();
 		remotePs.close();
