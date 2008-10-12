@@ -5,7 +5,7 @@ import java.util.logging.*;
 import java.util.Date;
 
 public class LogFormatter extends java.util.logging.Formatter  {
-	private static final int LEVEL_PADDING = 7;
+	private static final int LEVEL_PADDING = 6;
 	private final SimpleDateFormat sf = new SimpleDateFormat("HH:mm:ss");
 
 	public String format(LogRecord rec) {
