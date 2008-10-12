@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project basedir=".">
+	<property name="project_name" value="lircdb"/>
+	<property name="project_author" value="James Carter"/>
+	<property name="project_mainclass" value="com.googlecode.lircdb.cli.LircDbCLI"/>
+
+	<property name="project_jar" value="${project_name}.jar"/>
+	<property name="project_src" value="src"/>
+	<property name="project_lib" value="lib"/>
+
+	<property name="build_temp" value="build/temp"/>
+	<property name="build_bin" value="build/bin"/>
+
+	<property file="app.properties"/>
+
+	<path id="class.path">
+		<pathelement location="./"/>
+
+		<pathelement path="${project_lib}/*.jar"/>
+	</path>
+
+	<target name="init">
+		<mkdir dir="${build_temp}"/>
+		<mkdir dir="${build_bin}"/>
+	</target>
+
+	<target name="compile" depends="init">
+		<copy todir="${build_temp}/">
+			<fileset dir="${project_src}" includes="**/*.java"/>
+		</copy>
+
+		<javac srcdir="${build_temp}" destdir="${build_temp}">
+			<classpath refid="class.path"/>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar compress="true" jarfile="${build_temp}\${project_jar}">
+			<manifest>
+				<attribute name="Main-Class" value="${project_mainclass}"/>
+				<attribute name="Implementation-Vendor" value="${project_author}"/>
+			</manifest>
+
+			<fileset dir="${build_temp}">
+				<patternset>
+					<include name="**/*.class"/>
+					<exclude name="**/cli/*.class"/>
+				</patternset>
+			</fileset>
+		</jar>
+
+		<move todir="${build_bin}">
+			<fileset dir="${build_temp}" includes="*.jar"/>
+		</move>
+	</target>
+
+	<target name="create_db" depends="init">
+		<copy todir="${build_temp}">
+			<fileset dir="db" includes="*.sql"/>
+		</copy>
+
+		<!-- remove multiline comments -->
+		<replaceregexp match="/\*([^*][\s\S])*\*/" replace="" flags="g">
+			<fileset dir="${build_temp}" includes="*.sql"/>
+		</replaceregexp>
+
+		<sql driver="${db.driver}" url="${db.url}" userid="${db.user}" password="${db.pass}">
+			<classpath>
+				<pathelement location="${project_lib}/h2.jar"/>
+			</classpath>
+
+			<fileset dir="${build_temp}">
+				<include name="db_schema.sql"/>
+			</fileset>
+
+			<fileset dir="${build_temp}">
+				<include name="db_data.sql"/>
+			</fileset>
+
+			<fileset dir="${build_temp}">
+				<include name="db_sw_data.sql"/>
+			</fileset>
+		</sql>
+	</target>
+
+	<target name="clean">
+		<delete dir="build"/>
+	</target>
+</project>
